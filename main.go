@@ -1,13 +1,17 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/commands"
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/config"
+	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/database"
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/handlers"
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/state"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -16,7 +20,15 @@ func main() {
 		log.Fatalf("error reading config: %v", err)
 	}
 
+	db, err := sql.Open("postgres", cfg.DB)
+	if err != nil {
+		log.Fatalf("error connecting to db: %v", err)
+	}
+	defer db.Close()
+	dbQueries := database.New(db)
+
 	s := &state.State{
+		DB:            dbQueries,
 		ConfigPointer: &cfg,
 	}
 
