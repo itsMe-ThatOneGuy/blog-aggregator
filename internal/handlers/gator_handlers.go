@@ -10,7 +10,7 @@ import (
 
 func HandlerLogin(s *state.State, cmd commands.Command) error {
 	if len(cmd.Args) == 0 {
-		return errors.New("login handler expects a username argument")
+		return fmt.Errorf("login handler expects a username argument")
 	}
 	username := cmd.Args[0]
 

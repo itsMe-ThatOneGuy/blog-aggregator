@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 )
@@ -34,7 +33,7 @@ func Read() (Config, error) {
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&config)
 	if err != nil {
-		return Config{}, errors.New("issue when decoding json file")
+		return Config{}, err
 	}
 
 	return config, nil
@@ -53,14 +52,14 @@ func write(cfg Config) error {
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		return errors.New("issue opening file")
+		return err
 	}
 	defer file.Close()
 
 	encoder := json.NewEncoder(file)
 	err = encoder.Encode(cfg)
 	if err != nil {
-		return errors.New("issue writing to file")
+		return err
 	}
 
 	return nil
@@ -69,7 +68,7 @@ func write(cfg Config) error {
 func getConfigFilePath() (string, error) {
 	dir, err := os.UserHomeDir()
 	if err != nil {
-		return "", errors.New("Issue reading file")
+		return "", err
 	}
 
 	fullPath := dir + "/.gatorconfig.json"
