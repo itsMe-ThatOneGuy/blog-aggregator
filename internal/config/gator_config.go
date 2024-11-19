@@ -51,7 +51,7 @@ func write(cfg Config) error {
 		return err
 	}
 
-	file, err := os.OpenFile(filePath, os.O_WRONLY, 0644)
+	file, err := os.Create(filePath)
 	if err != nil {
 		return errors.New("issue opening file")
 	}
