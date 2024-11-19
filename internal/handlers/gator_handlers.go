@@ -18,10 +18,23 @@ func HandlerLogin(s *state.State, cmd commands.Command) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("login handler expects a username argument")
 	}
-	username := cmd.Args[0]
+	name := cmd.Args[0]
 
-	s.ConfigPointer.SetUser(username)
-	fmt.Printf("User has been set: %s\n", username)
+	_, err := s.DB.GetUser(context.Background(), name)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("can't login user: %w\n", err)
+		}
+
+		return err
+	}
+
+	s.ConfigPointer.SetUser(name)
+	fmt.Printf("User has been set: %s\n", name)
+
+	return nil
+}
+
 func HandlerRegister(s *state.State, cmd commands.Command) error {
 	if len(cmd.Args) == 0 {
 		return errors.New("register handler expects a username")
