@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type Config struct {
@@ -71,7 +72,7 @@ func getConfigFilePath() (string, error) {
 		return "", err
 	}
 
-	fullPath := dir + "/.gatorconfig.json"
+	fullPath := filepath.Join(dir, ConfigFile)
 
 	return fullPath, nil
 }
