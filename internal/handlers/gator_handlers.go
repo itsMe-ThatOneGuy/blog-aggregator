@@ -14,6 +14,16 @@ import (
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/state"
 )
 
+func Reset(s *state.State, cmd commands.Command) error {
+	err := s.DB.ResetDB(context.Background())
+	if err != nil {
+		return fmt.Errorf("issue deleting users: %w", err)
+	}
+	fmt.Println("Database reset")
+
+	return nil
+}
+
 func HandlerLogin(s *state.State, cmd commands.Command) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("login handler expects a username argument")
