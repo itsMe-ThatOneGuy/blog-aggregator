@@ -37,6 +37,7 @@ func main() {
 	}
 
 	cmds.Register("login", handlers.HandlerLogin)
+	cmds.Register("register", handlers.HandlerRegister)
 
 	if len(os.Args) < 3 {
 		fmt.Println("Provide a command name and arguments")
