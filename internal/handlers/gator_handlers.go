@@ -78,6 +78,24 @@ func HandlerRegister(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
+func HandlerGetUsers(s *state.State, cmd commands.Command) error {
+	users, err := s.DB.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("issue retrieving users")
+	}
+
+	for _, user := range users {
+		current := s.ConfigPointer.User
+		if user.Name == current {
+			fmt.Printf("* %v (current)\n", user.Name)
+			continue
+		}
+		fmt.Printf("* %v\n", user.Name)
+	}
+
+	return nil
+}
+
 func printUser(user database.User) {
 	fmt.Printf("* ID:   %v\n", user.ID)
 	fmt.Printf("* Name: %v\n", user.Name)
