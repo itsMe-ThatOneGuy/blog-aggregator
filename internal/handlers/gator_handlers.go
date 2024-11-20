@@ -141,6 +141,19 @@ func HandlerGetUsers(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
+func getCurrentUser(s *state.State) (database.User, error) {
+	cfgUser := s.ConfigPointer.User
+	user, err := s.DB.GetUser(context.Background(), cfgUser)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			return database.User{}, err
+		}
+		return database.User{}, fmt.Errorf("User not found")
+	}
+
+	return user, nil
+}
+
 func printUser(user database.User) {
 	fmt.Printf("* ID:   %v\n", user.ID)
 	fmt.Printf("* Name: %v\n", user.Name)
