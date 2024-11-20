@@ -36,6 +36,39 @@ func Reset(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
+func AddFeed(s *state.State, cmd commands.Command) error {
+	if len(cmd.Args) < 2 {
+		return fmt.Errorf("add feed handler expects a name and url")
+	}
+
+	name := cmd.Args[0]
+	url := cmd.Args[1]
+	currentUser, err := getCurrentUser(s)
+	if err != nil {
+		return fmt.Errorf("user not found")
+	}
+
+	feed := database.CreateFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		Name:      name,
+		Url:       url,
+		UserID:    currentUser.ID,
+	}
+
+	newFeed, err := s.DB.CreateFeed(context.Background(), feed)
+	if err != nil {
+		return fmt.Errorf("issue creating feed")
+	}
+
+	fmt.Printf(url)
+
+	printFeed(newFeed)
+
+	return nil
+}
+
 func HandlerLogin(s *state.State, cmd commands.Command) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("login handler expects a username argument")
