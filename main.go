@@ -41,6 +41,7 @@ func main() {
 	cmds.Register("reset", handlers.Reset)
 	cmds.Register("users", handlers.HandlerGetUsers)
 	cmds.Register("agg", handlers.Agg)
+	cmds.Register("addfeed", handlers.AddFeed)
 
 	if len(os.Args) < 2 {
 		fmt.Println("Provide a command name and arguments")
