@@ -158,3 +158,10 @@ func printUser(user database.User) {
 	fmt.Printf("* ID:   %v\n", user.ID)
 	fmt.Printf("* Name: %v\n", user.Name)
 }
+
+func printFeed(feed database.Feed) {
+	fmt.Printf("* ID:   %v\n", feed.ID)
+	fmt.Printf("* Name: %v\n", feed.Name)
+	fmt.Printf("* URL: %v\n", feed.Url)
+	fmt.Printf("* UserID: %v\n", feed.UserID)
+}
