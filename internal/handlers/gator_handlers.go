@@ -11,8 +11,20 @@ import (
 	"github.com/google/uuid"
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/commands"
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/database"
+	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/rss"
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/state"
 )
+
+func Agg(s *state.State, cmd commands.Command) error {
+	feed, err := rss.FetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%+v", feed)
+
+	return nil
+}
 
 func Reset(s *state.State, cmd commands.Command) error {
 	err := s.DB.ResetDB(context.Background())

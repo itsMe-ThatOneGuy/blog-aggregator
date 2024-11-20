@@ -40,6 +40,7 @@ func main() {
 	cmds.Register("register", handlers.HandlerRegister)
 	cmds.Register("reset", handlers.Reset)
 	cmds.Register("users", handlers.HandlerGetUsers)
+	cmds.Register("agg", handlers.Agg)
 
 	if len(os.Args) < 2 {
 		fmt.Println("Provide a command name and arguments")
