@@ -69,6 +69,26 @@ func AddFeed(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
+func Feeds(s *state.State, cmd commands.Command) error {
+	feeds, err := s.DB.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("issue retrieving feeds")
+	}
+
+	for _, feed := range feeds {
+		user, err := s.DB.GetUserByID(context.Background(), feed.UserID)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%s\n", feed.Name)
+		fmt.Printf(" - URL: %s\n", feed.Url)
+		fmt.Printf(" - Added By: %s\n", user.Name)
+	}
+
+	return nil
+}
+
 func HandlerLogin(s *state.State, cmd commands.Command) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("login handler expects a username argument")
