@@ -101,6 +101,43 @@ func Feeds(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
+func Follow(s *state.State, cmd commands.Command) error {
+	if len(cmd.Args) < 1 {
+		return fmt.Errorf("follow requires a url")
+	}
+	url := cmd.Args[0]
+
+	user, err := s.DB.GetUser(context.Background(), s.ConfigPointer.User)
+	if err != nil {
+		return err
+	}
+
+	feed, err := s.DB.GetFeedByURL(context.Background(), url)
+	if err != nil {
+		return err
+	}
+
+	feedToFollow := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	}
+
+	_, err = s.DB.CreateFeedFollow(context.Background(), feedToFollow)
+	if err != nil {
+		return fmt.Errorf("issue following feed")
+	}
+
+	fmt.Println("User")
+	printUser(user)
+	fmt.Println("feed")
+	printFeed(feed)
+
+	return nil
+}
+
 func HandlerLogin(s *state.State, cmd commands.Command) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("login handler expects a username argument")
