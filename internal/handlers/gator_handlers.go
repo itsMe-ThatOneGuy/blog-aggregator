@@ -138,6 +138,23 @@ func Follow(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
+func Following(s *state.State, cmd commands.Command) error {
+	user, err := getCurrentUser(s)
+	if err != nil {
+		return err
+	}
+
+	follows, err := s.DB.GetFeedFollowsForUser(context.Background(), user.ID)
+
+	fmt.Printf("User: %v\n", user.Name)
+	fmt.Println("Feeds:")
+	for _, feed := range follows {
+		fmt.Printf(" - %v\n", feed.FeedName)
+	}
+
+	return nil
+}
+
 func HandlerLogin(s *state.State, cmd commands.Command) error {
 	if len(cmd.Args) == 0 {
 		return fmt.Errorf("login handler expects a username argument")
