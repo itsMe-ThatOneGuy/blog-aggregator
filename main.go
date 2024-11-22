@@ -43,6 +43,8 @@ func main() {
 	cmds.Register("agg", handlers.Agg)
 	cmds.Register("addfeed", handlers.AddFeed)
 	cmds.Register("feeds", handlers.Feeds)
+	cmds.Register("follow", handlers.Follow)
+	cmds.Register("following", handlers.Following)
 
 	if len(os.Args) < 2 {
 		fmt.Println("Provide a command name and arguments")
