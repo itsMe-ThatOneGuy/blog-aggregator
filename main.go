@@ -10,6 +10,7 @@ import (
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/config"
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/database"
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/handlers"
+	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/middleware"
 	"github.com/itsMe-ThatOneGuy/blog-aggregator/internal/state"
 	_ "github.com/lib/pq"
 )
@@ -41,10 +42,10 @@ func main() {
 	cmds.Register("reset", handlers.Reset)
 	cmds.Register("users", handlers.HandlerGetUsers)
 	cmds.Register("agg", handlers.Agg)
-	cmds.Register("addfeed", handlers.AddFeed)
-	cmds.Register("feeds", handlers.Feeds)
-	cmds.Register("follow", handlers.Follow)
-	cmds.Register("following", handlers.Following)
+	cmds.Register("addfeed", middleware.MiddlewareLoggedIn(handlers.HandlerAddFeed))
+	cmds.Register("feeds", handlers.HandlerListFeeds)
+	cmds.Register("follow", middleware.MiddlewareLoggedIn(handlers.HandlerFollow))
+	cmds.Register("following", middleware.MiddlewareLoggedIn(handlers.HandlerListFollowing))
 
 	if len(os.Args) < 2 {
 		fmt.Println("Provide a command name and arguments")

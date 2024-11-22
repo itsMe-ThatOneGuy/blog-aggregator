@@ -36,17 +36,13 @@ func Reset(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
-func AddFeed(s *state.State, cmd commands.Command) error {
+func HandlerAddFeed(s *state.State, cmd commands.Command, user database.User) error {
 	if len(cmd.Args) < 2 {
 		return fmt.Errorf("add feed handler expects a name and url")
 	}
 
 	name := cmd.Args[0]
 	url := cmd.Args[1]
-	user, err := getCurrentUser(s)
-	if err != nil {
-		return fmt.Errorf("user not found")
-	}
 
 	feed := database.CreateFeedParams{
 		ID:        uuid.New(),
@@ -81,7 +77,7 @@ func AddFeed(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
-func Feeds(s *state.State, cmd commands.Command) error {
+func HandlerListFeeds(s *state.State, cmd commands.Command) error {
 	feeds, err := s.DB.GetFeeds(context.Background())
 	if err != nil {
 		return fmt.Errorf("issue retrieving feeds")
@@ -101,7 +97,7 @@ func Feeds(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
-func Follow(s *state.State, cmd commands.Command) error {
+func HandlerFollow(s *state.State, cmd commands.Command, user database.User) error {
 	if len(cmd.Args) < 1 {
 		return fmt.Errorf("follow requires a url")
 	}
@@ -138,7 +134,7 @@ func Follow(s *state.State, cmd commands.Command) error {
 	return nil
 }
 
-func Following(s *state.State, cmd commands.Command) error {
+func HandlerListFollowing(s *state.State, cmd commands.Command, user database.User) error {
 	user, err := getCurrentUser(s)
 	if err != nil {
 		return err
