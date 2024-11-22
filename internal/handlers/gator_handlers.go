@@ -43,7 +43,7 @@ func AddFeed(s *state.State, cmd commands.Command) error {
 
 	name := cmd.Args[0]
 	url := cmd.Args[1]
-	currentUser, err := getCurrentUser(s)
+	user, err := getCurrentUser(s)
 	if err != nil {
 		return fmt.Errorf("user not found")
 	}
@@ -54,7 +54,7 @@ func AddFeed(s *state.State, cmd commands.Command) error {
 		UpdatedAt: time.Now(),
 		Name:      name,
 		Url:       url,
-		UserID:    currentUser.ID,
+		UserID:    user.ID,
 	}
 
 	newFeed, err := s.DB.CreateFeed(context.Background(), feed)
@@ -62,8 +62,20 @@ func AddFeed(s *state.State, cmd commands.Command) error {
 		return fmt.Errorf("issue creating feed")
 	}
 
-	fmt.Printf(url)
+	feedFollow := database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	}
 
+	_, err = s.DB.CreateFeedFollow(context.Background(), feedFollow)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf(url)
 	printFeed(newFeed)
 
 	return nil
