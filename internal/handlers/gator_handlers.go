@@ -103,11 +103,6 @@ func HandlerFollow(s *state.State, cmd commands.Command, user database.User) err
 	}
 	url := cmd.Args[0]
 
-	user, err := s.DB.GetUser(context.Background(), s.ConfigPointer.User)
-	if err != nil {
-		return err
-	}
-
 	feed, err := s.DB.GetFeedByURL(context.Background(), url)
 	if err != nil {
 		return err
@@ -134,13 +129,38 @@ func HandlerFollow(s *state.State, cmd commands.Command, user database.User) err
 	return nil
 }
 
+func HandlerUnfollow(s *state.State, cmd commands.Command, user database.User) error {
+	if len(cmd.Args) < 1 {
+		return fmt.Errorf("unfollow requires a feed url")
+	}
+
+	url := cmd.Args[0]
+
+	feed, err := s.DB.GetFeedByURL(context.Background(), url)
+	if err != nil {
+		return fmt.Errorf("issue getting feed: %w", err)
+	}
+
+	deleteFeed := database.DeleteFeedFollowParams{
+		ID:  user.ID,
+		Url: url,
+	}
+
+	err = s.DB.DeleteFeedFollow(context.Background(), deleteFeed)
+	if err != nil {
+		return fmt.Errorf("issue deleting follow: %w", err)
+	}
+
+	fmt.Printf("%s unfollowd %s\n", user.Name, feed.Name)
+
+	return nil
+}
+
 func HandlerListFollowing(s *state.State, cmd commands.Command, user database.User) error {
-	user, err := getCurrentUser(s)
+	follows, err := s.DB.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return err
 	}
-
-	follows, err := s.DB.GetFeedFollowsForUser(context.Background(), user.ID)
 
 	fmt.Printf("User: %v\n", user.Name)
 	fmt.Println("Feeds:")
