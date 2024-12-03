@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -51,7 +53,36 @@ func ScrapeFeeds(s *state.State) error {
 	}
 
 	for _, item := range feed.Channel.Item {
-		fmt.Printf("Posts: %s\n", item.Title)
+		publishedAt := sql.NullTime{}
+		if time, err := time.Parse(time.RFC1123Z, item.PubDate); err == nil {
+			publishedAt = sql.NullTime{
+				Time:  time,
+				Valid: true,
+			}
+		}
+
+		postParams := database.CreatePostsParams{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+			UpdatedAt: time.Now().UTC(),
+			Title:     item.Title,
+			Url:       item.Link,
+			Description: sql.NullString{
+				String: item.Description,
+				Valid:  true,
+			},
+			PublishedAt: publishedAt,
+			FeedID:      nextFeed.ID,
+		}
+
+		_, err = s.DB.CreatePosts(context.Background(), postParams)
+		if err != nil {
+			if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+				continue
+			}
+			fmt.Errorf("couldn't create post: %w", err)
+			continue
+		}
 	}
 
 	return nil
@@ -285,6 +316,38 @@ func getCurrentUser(s *state.State) (database.User, error) {
 	}
 
 	return user, nil
+}
+
+func HandlerBrowse(s *state.State, cmd commands.Command, user database.User) error {
+	limit := 2
+	if len(cmd.Args) == 1 {
+		if cmdLimit, err := strconv.Atoi(cmd.Args[0]); err == nil {
+			limit = cmdLimit
+		} else {
+			fmt.Errorf("invalid limit: %w", err)
+		}
+	}
+
+	postParams := database.GetPostsParams{
+		UserID: user.ID,
+		Limit:  int32(limit),
+	}
+
+	posts, err := s.DB.GetPosts(context.Background(), postParams)
+	if err != nil {
+		return fmt.Errorf("couldn't get posts for user: %w", err)
+	}
+
+	fmt.Printf("Found %d posts for user %s:\n", len(posts), user.Name)
+	for _, post := range posts {
+		fmt.Printf("%s from %s\n", post.PublishedAt.Time.Format("Mon Jan 2"), post.FeedName)
+		fmt.Printf("--- %s ---\n", post.Title)
+		fmt.Printf("    %v\n", post.Description.String)
+		fmt.Printf("Link: %s\n", post.Url)
+		fmt.Println("=====================================")
+	}
+
+	return nil
 }
 
 func printUser(user database.User) {
