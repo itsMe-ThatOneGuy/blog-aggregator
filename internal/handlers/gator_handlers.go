@@ -80,7 +80,7 @@ func ScrapeFeeds(s *state.State) error {
 			if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
 				continue
 			}
-			fmt.Errorf("couldn't create post: %w", err)
+			return fmt.Errorf("couldn't create post: %w", err)
 			continue
 		}
 	}
